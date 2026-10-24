@@ -1,0 +1,13 @@
+{
+  "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.ipynb_checkpoints": true
+  },
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "notebook.output.textLineLimit": 30
+}
