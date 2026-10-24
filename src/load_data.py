@@ -22,14 +22,29 @@ def fix_mojibake(s: pd.Series) -> pd.Series:
     return s.map(fix)
 
 
+def current_league_club_ids() -> set:
+    """Ids of the clubs that played Premier League matches in the current season.
+
+    players.csv tags many non-Premier League English clubs (Cardiff, Wigan, ...) with the
+    same domestic competition id, so that column can't be used to find today's clubs.
+    """
+    a = pd.read_csv(
+        RAW_DIR / "appearances.csv",
+        usecols=["date", "competition_id", "player_club_id"],
+        parse_dates=["date"],
+    )
+    a = a[(a["competition_id"] == LEAGUE_ID) & (a["date"] >= f"{CURRENT_SEASON}-07-01")]
+    return set(a["player_club_id"])
+
+
 def load_players() -> pd.DataFrame:
-    """Players whose current club is in the Premier League and who were active this season."""
+    """Players at a current Premier League club who were active this season."""
     df = pd.read_csv(
         RAW_DIR / "players.csv",
         parse_dates=["date_of_birth", "contract_expiration_date"],
     )
     df = df[
-        (df["current_club_domestic_competition_id"] == LEAGUE_ID)
+        df["current_club_id"].isin(current_league_club_ids())
         & (df["last_season"] == CURRENT_SEASON)
     ].copy()
     for col in ["name", "current_club_name"]:
