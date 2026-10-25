@@ -53,3 +53,25 @@ def evaluate(pred_log: pd.Series, actual_log: pd.Series) -> dict:
 def fit_and_score(formula: str, train: pd.DataFrame, test: pd.DataFrame):
     model = smf.ols(formula, data=train).fit()
     return model, evaluate(model.predict(test), test["log_value"])
+
+
+def readable_names(names) -> list:
+    """Turn statsmodels term names like "C(position)[T.Goalkeeper]" into labels for charts."""
+    fixed = {
+        "log_prev_value": "Last season's value (log)",
+        "pl_minutes_k": "PL minutes (per 1,000)",
+        "goals_per90": "Goals per 90",
+        "assists_per90": "Assists per 90",
+        "height_in_cm": "Height (per cm)",
+        "age": "Age",
+        "I(age ** 2)": "Age squared",
+    }
+    out = []
+    for n in names:
+        if n.startswith("C(position)"):
+            out.append(f"Position: {n.split('T.')[1].rstrip(']')} (vs Attack)")
+        elif n.startswith("C(foot"):
+            out.append(f"Foot: {n.split('T.')[1].rstrip(']')} (vs right)")
+        else:
+            out.append(fixed.get(n, n))
+    return out
